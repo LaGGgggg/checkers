@@ -1,0 +1,14 @@
+﻿  Скопировано файлов:         1.
+  Скопировано файлов:         1.
+  Скопировано файлов:         1.
+  Скопировано файлов:         1.
+  Скопировано файлов:         1.
+  Скопировано файлов:         1.
+  Подпапка или файл D:\Studying\1. Programms\Checks\Checks\x64\Debug Dynamic\resources уже существует.
+  D:\Studying\1. Programms\Checks\Checks\resources\ball.wav
+  D:\Studying\1. Programms\Checks\Checks\resources\sansation.ttf
+  Скопировано файлов:         2.
+  storage.cpp
+d:\studying\1. programms\checks\checks\storage.cpp(25): warning C4244: инициализация: преобразование "float" в "int", возможна потеря данных
+d:\studying\1. programms\checks\checks\storage.cpp(26): warning C4244: инициализация: преобразование "float" в "int", возможна потеря данных
+  Checks.vcxproj -> D:\Studying\1. Programms\Checks\Checks\x64\Debug Dynamic\Checks.exe
