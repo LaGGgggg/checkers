@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 
-// Константы ==============================================================================================
+// РљРѕРЅСЃС‚Р°РЅС‚С‹ ==============================================================================================
 const float WINDOW_X = 1280.f;
 const float WINDOW_Y = 720.f;
 
@@ -19,19 +19,27 @@ const float CHEKER_STORAGE_X = 20.f;////////////
 const float CHEKER_STORAGE_Y = 100.f;
 
 
-// Цвета 
+// Р¦РІРµС‚Р° 
 const sf::Color back_color(120, 116, 81);
-const sf::Color boulders(34, 29, 19); // для контура
+const sf::Color boulders(34, 29, 19); // РґР»СЏ РєРѕРЅС‚СѓСЂР°
 const sf::Color black_sq(95, 61, 33);
 const sf::Color white_sq(179, 139, 89);
 const sf::Color wite_checker(255, 255, 255);
 const sf::Color black_checker(0, 0, 0);
+const sf::Color selected_sq(0, 150, 40);
+
+
+// from main() ============================================================================================
+
+sf::Vector2f calculate_checker_position(int i, int j);
 
 inline int to_sq_num(int x, int y);
-
+bool is_empty_in_radius(int x, int y, int r);
+void remove_selection(sf::RectangleShape* sq);
 
 
 // class my_sqare =========================================================================================
+
 class mySqare {
 private:
 	bool isEmpty;
@@ -102,8 +110,6 @@ public:
 };
 
 
-// Обработка событий ======================================================================================
+// РћР±СЂР°Р±РѕС‚РєР° СЃРѕР±С‹С‚РёР№ ======================================================================================
 
 void type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
-
-
