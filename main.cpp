@@ -8,68 +8,55 @@
 //#include <ctime>
 //#include <cstdlib>
 
-//TO DO:
-
-// сделать ходы
-// реализовать движение
-// сделать подсветку
-
-// события
-//нажатие на шашку -> нажатие на клетку
-
-
-// создание поля [x][y]
+// СЃРѕР·РґР°РЅРёРµ РїРѕР»СЏ [x][y]
 mySqare sqare[8][8];
 
 int main(){
 
 	bool MY_COLOR = false;
-	int pos = MY_COLOR ? 5 : 0;  // чтобы снизу были шашки данного игрока, а сверху противника
+	int pos = MY_COLOR ? 5 : 0;  // С‡С‚РѕР±С‹ СЃРЅРёР·Сѓ Р±С‹Р»Рё С€Р°С€РєРё РґР°РЅРЅРѕРіРѕ РёРіСЂРѕРєР°, Р° СЃРІРµСЂС…Сѓ РїСЂРѕС‚РёРІРЅРёРєР°
 
 
 	// window =========================================================================================================
 	sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "Checks");
 	
 
-	// Задний фон
+	// Р—Р°РґРЅРёР№ С„РѕРЅ
 	sf::RectangleShape background({ WINDOW_X, WINDOW_Y });
 	background.setFillColor(back_color);
 	
-	// Поле (белые клетки)
+	// РџРѕР»Рµ (Р±РµР»С‹Рµ РєР»РµС‚РєРё)
 	sf::RectangleShape field({ FIELD_SIZE, FIELD_SIZE });
 	field.setFillColor(white_sq);
 	field.setPosition({ FIELD_OFFSET_X, FIELD_OFFSET_Y });
 	field.setOutlineThickness(3);
 	field.setOutlineColor(boulders);
 
-	// Черные клетки
+	// Р§РµСЂРЅС‹Рµ РєР»РµС‚РєРё
 	sf::RectangleShape sq[32];
 	for (int i = 0; i < 32; ++i) {
 
 		sq[i].setSize({ SQ_SIZE, SQ_SIZE });
 		sq[i].setFillColor(black_sq);
-		
 		sq[i].setOutlineThickness(-2);
 		sq[i].setOutlineColor(black_sq);
-		
+
 	}
 	int k = 0;
 	for (int i = 0; i < 8; ++i) {
 		for (int j = 0; j < 4; ++j) {
 
-			sq[k].setPosition({ static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE)),
-								static_cast <float>(FIELD_OFFSET_Y + (i * SQ_SIZE)) });
+			sq[k].setPosition(calculate_checker_position (i,j));
 			++k;
 		}
 	}
 
-	// Белые шашки
+	// Р‘РµР»С‹Рµ С€Р°С€РєРё
 	sf::CircleShape w_checker[12];
 	for (int i = 0; i < 12; ++i) {
-		
+
 		w_checker[i].setRadius(CHECKER_RADIUS);
 		w_checker[i].setFillColor(wite_checker);
-
 		w_checker[i].setOutlineThickness(-1);
 		w_checker[i].setOutlineColor(white_sq);
 
@@ -78,20 +65,18 @@ int main(){
 	for (int i = 0 + pos; i < 3 + pos; ++i) {
 		for (int j = 0; j < 4; ++j) {
 
-			w_checker[k].setPosition({ static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE) + CHECKER_OFFSET),
-				static_cast <float>(FIELD_OFFSET_Y + (i * SQ_SIZE) + CHECKER_OFFSET)});
+			w_checker[k].setPosition(calculate_checker_position(i, j) + sf::Vector2f{CHECKER_OFFSET, CHECKER_OFFSET});
 			++k;
-
 		}
 	}
 
-	// Черные шашки
+
+	// Р§РµСЂРЅС‹Рµ С€Р°С€РєРё
 	sf::CircleShape b_checker[12];
 	for (int i = 0; i < 12; ++i) {
 
 		b_checker[i].setRadius(CHECKER_RADIUS);
 		b_checker[i].setFillColor(black_checker);
-
 		b_checker[i].setOutlineThickness(-1);
 		b_checker[i].setOutlineColor(boulders);
 
@@ -100,15 +85,14 @@ int main(){
 	for (int i = 5 - pos; i < 8 - pos; ++i) {
 		for (int j = 0; j < 4; ++j) {
 
-			b_checker[k].setPosition({ static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE) + CHECKER_OFFSET),
-				static_cast <float>(FIELD_OFFSET_Y + (i * SQ_SIZE) + CHECKER_OFFSET) });
+			b_checker[k].setPosition(calculate_checker_position(i, j) + sf::Vector2f{ CHECKER_OFFSET, CHECKER_OFFSET });
 			++k;
 
 		}
 	}
 
 	
-	// привязка шашек к клеткам
+	// РїСЂРёРІСЏР·РєР° С€Р°С€РµРє Рє РєР»РµС‚РєР°Рј
 	k = 0;
 	for (int i = 0 + pos; i < 3 + pos; ++i) {                //y
 		for (int j = 0; j < 8; ++j) {                        //x
@@ -134,18 +118,18 @@ int main(){
 
 
 
-	while (window.isOpen()) { //    Работа с окном    =================================================================
+	while (window.isOpen()) { //    Р Р°Р±РѕС‚Р° СЃ РѕРєРЅРѕРј    =================================================================
 
  
 		sf::Event event;
-		while (window.pollEvent(event)) {  // pollEvent - возвращает событие, если оно ожидает обработки
-			// закрытие окна
+		while (window.pollEvent(event)) {  // pollEvent - РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРѕР±С‹С‚РёРµ, РµСЃР»Рё РѕРЅРѕ РѕР¶РёРґР°РµС‚ РѕР±СЂР°Р±РѕС‚РєРё
+			// Р·Р°РєСЂС‹С‚РёРµ РѕРєРЅР°
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			}
 
 			
-			// нажатие на поле
+			// РЅР°Р¶Р°С‚РёРµ РЅР° РїРѕР»Рµ
 			if (event.type == sf::Event::MouseButtonPressed &&
 				field.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
 				
@@ -154,14 +138,13 @@ int main(){
 
 				type(click_x, click_y, sq, sqare);
 			}
-
 		}
 
 
 
 		window.clear();
 
-		// отрисовка объектов ----------------------------------
+		// РѕС‚СЂРёСЃРѕРІРєР° РѕР±СЉРµРєС‚РѕРІ ----------------------------------
 		window.draw(background);
 		window.draw(field);
 		for (int i = 0; i < 32; ++i) {
@@ -170,7 +153,6 @@ int main(){
 		for (int i = 0; i < 12; ++i) {
 			window.draw(w_checker[i]);
 			window.draw(b_checker[i]);
-
 		}
 
 
