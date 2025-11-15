@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 
-// Константы ==============================================================================================
+// РЎonstants ==============================================================================================
 const int WINDOW_X = 1280;
 const int WINDOW_Y = 720;
 
@@ -19,24 +19,14 @@ const float CHEKER_STORAGE_X = 20.f;////////////
 const float CHEKER_STORAGE_Y = 100.f;
 
 
-// Цвета 
+// Colors 
 const sf::Color back_color(120, 116, 81);
-const sf::Color boulders(34, 29, 19); // для контура
+const sf::Color outline(34, 29, 19); 
 const sf::Color black_sq(95, 61, 33);
 const sf::Color white_sq(179, 139, 89);
 const sf::Color wite_checker(255, 255, 255);
 const sf::Color black_checker(0, 0, 0);
 const sf::Color selected_sq(0, 150, 40);
-
-
-// from main() ============================================================================================
-
-sf::Vector2f calculate_checker_position(int i, int j);
-
-inline int to_sq_num(int x, int y);
-bool is_empty_in_radius(int x, int y, int r);
-void remove_selection(sf::RectangleShape* sq);
-
 
 // class my_sqare =========================================================================================
 
@@ -65,7 +55,7 @@ public:
 	bool get_is_queen() const {
 		return (isQueen);
 	}
-	sf::CircleShape* get_checker() const{
+	sf::CircleShape* get_checker() const {
 		return figure;
 	}
 
@@ -77,7 +67,7 @@ public:
 	void set_checker(bool check_color, bool is_queen, sf::CircleShape* shape) {
 
 		isEmpty = false;
-		color = check_color; 
+		color = check_color;
 		isQueen = is_queen;
 		figure = shape;
 	}
@@ -93,7 +83,7 @@ public:
 
 
 	// only for debug
-	void print() {  
+	void print() {
 		if (isEmpty) std::cout << "is Empty  ";
 		else std::cout << "not Empty  ";
 
@@ -110,6 +100,22 @@ public:
 };
 
 
-// Обработка событий ======================================================================================
+
+// from main() ============================================================================================
+sf::Vector2f calculate_checker_position(int i, int j);
+sf::Vector2f calculate_position(int x, int y);
+
+inline int to_sq_num(int x, int y);
+
+bool is_this_in_radius(int x, int y, int r);
+bool is_double_jump(int x, int y, mySqare sqare[][8]);
+
+void select(int x, int y, sf::RectangleShape* sq);
+void remove_selection(sf::RectangleShape* sq);
+
+
+
+
+// Events  ================================================================================================
 
 void type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
