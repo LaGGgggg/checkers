@@ -8,6 +8,28 @@
 #include "socket_manager.h"
 
 
+sf::Packet& operator<<(sf::Packet& packet, const Message message) {
+
+  packet << message.x_from;
+  packet << message.y_from;
+  packet << message.x_to;
+  packet << message.y_to;
+  packet << message.state;
+
+  return packet;
+}
+sf::Packet& operator>>(sf::Packet& packet, Message& message) {
+
+  packet >> message.x_from;
+  packet >> message.y_from;
+  packet >> message.x_to;
+  packet >> message.y_to;
+  packet >> message.state;
+
+  return packet;
+}
+
+
 /**
  * Starts a socket as a server or client.
  *
@@ -55,9 +77,9 @@ void SocketManager::stop() {
 * @param message the message to send.
 * @return `true` if the message was accepted for sending, `false` if a previous message is still pending.
 */
-bool SocketManager::send_message(const std::string& message) {
+bool SocketManager::send_message(Message& message) {
 
-  if (message_to_send_.empty()) {
+  if (!message_to_send_.has_value()) {
     message_to_send_ = message;
     return true;
   }
@@ -66,13 +88,13 @@ bool SocketManager::send_message(const std::string& message) {
 }
 
 bool SocketManager::is_message_received() {
-  return !received_message_.empty();
+  return received_message_.has_value();
 }
 
-std::string SocketManager::get_received_message() {
+Message SocketManager::get_received_message() {
 
-  std::string message = received_message_;
-  received_message_.clear();
+  Message message = *received_message_;
+  received_message_.reset();
 
   return message;
 }
@@ -111,12 +133,12 @@ void SocketManager::run_server_() {
 
       case sf::Socket::Status::Done:
 
-        if (!received_message_.empty()) {
+        if (received_message_.has_value()) {
           std::cerr << "[WARNING] Overwriting unprocessed received message" << std::endl;
-          received_message_.clear();
+          received_message_.reset();
         }
 
-        received_packet >> received_message_;
+        received_packet >> received_message_.emplace();
         received_packet.clear();
 
         break;
@@ -146,16 +168,16 @@ void SocketManager::run_client_(std::optional<sf::IpAddress> ip_address) {
 
   while (is_running_.load()) {
 
-    if (!message_to_send_.empty()) {
+    if (message_to_send_.has_value()) {
 
       sf::Packet packet;
 
-      packet << message_to_send_;
+      packet << *message_to_send_;
 
       if (socket.send(packet) != sf::Socket::Status::Done) {
         std::cerr << "[ERROR] Failed to send data to " + ip_address->toString();
       } else {
-        message_to_send_.clear();
+        message_to_send_.reset();
       }
     }
 
