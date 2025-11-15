@@ -3,16 +3,19 @@
 #include "storage.h"
 
 int selected_num = -1;
-
 int selected_x = -1; 
 int selected_y = -1;
+
 bool is_selected_flag = false;
+bool is_double_jump_flag = false;
 
 bool now_color = true;
+bool MY_COLOR;
 
-// functions ========================================================================================================================
 
-//from main
+// Functions ========================================================================================================================
+
+// func from main
 sf::Vector2f calculate_checker_position(int i, int j) { // function from main()
 	return {static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE)),
 			static_cast<float>(FIELD_OFFSET_Y + (i * SQ_SIZE))};
@@ -21,19 +24,46 @@ sf::Vector2f calculate_position(int x, int y) {
 	return{ static_cast<float>(FIELD_OFFSET_X + SQ_SIZE * x + CHECKER_OFFSET),
 			static_cast<float>(FIELD_OFFSET_Y + SQ_SIZE * y + CHECKER_OFFSET) };
 }
+void set_my_color(bool color) {
+	MY_COLOR = color;
+}
 
 
-// вычисление номера черной клетки по индексам массива
-inline int to_sq_num (int x, int y) { 
+
+inline int to_sq_num (int x, int y) { // calculate index -> number of black sqare 
 	return y * 4 + (x - ((y + 1) % 2)) / 2;
 }
 
-bool is_empty_in_radius(int x, int y, int r) {
+
+bool is_this_in_radius(int x, int y, int r) { // return is this sqare enmpty and in radius regarding selected
 	return ((selected_x + r == x) && (selected_y + r == y || selected_y - r == y)) ||
 		   ((selected_x - r == x) && (selected_y + r == y || selected_y - r == y));
 }
+bool is_double_jump(int x, int y,  mySqare sqare[][8]) {
 
-void select(int x, int y, int num, sf::RectangleShape* sq) {
+	if (!sqare[x + 1][y + 1].is_empty() && sqare[x + 2][y + 2].is_empty() &&
+		 sqare[x + 1][y + 1].get_color() != now_color ) {
+			return true;	
+	}
+	if (!sqare[x + 1][y - 1].is_empty() && sqare[x + 2][y - 2].is_empty() &&
+		 sqare[x + 1][y - 1].get_color() != now_color ) {
+		return true;
+	}
+	if (!sqare[x - 1][y + 1].is_empty() && sqare[x - 2][y + 2].is_empty() &&
+		 sqare[x - 1][y + 1].get_color() != now_color ) {
+		return true;
+	}
+	if (!sqare[x - 1][y - 1].is_empty() && sqare[x - 2][y - 2].is_empty() &&
+		 sqare[x - 1][y - 1].get_color() != now_color ) {
+		return true;
+	}
+
+	return false;
+}
+
+
+void select(int x, int y, sf::RectangleShape* sq) {
+	int num = to_sq_num(x, y);
 
 	sq[num].setOutlineColor(selected_sq);
 	sq[num].setOutlineThickness(-4);
@@ -53,58 +83,50 @@ void remove_selection(sf::RectangleShape* sq) {
 	selected_y = -1;
 }
 
-// Обработка событий ================================================================================================================
+// РћР±СЂР°Р±РѕС‚РєР° СЃРѕР±С‹С‚РёР№ ================================================================================================================
 
 
-void type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]) {
+void type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
 
-	int x = (click_x - FIELD_OFFSET_X) / SQ_SIZE;
-	int y = (click_y - FIELD_OFFSET_Y) / SQ_SIZE;
-
-
-	if ((x + y) % 2 == 0) { // попали не на черную
+	if (!MY_COLOR)
+	if ((x + y) % 2 == 0) { // is not black sqare
 		return;
 	}
 
-	//выделение
+	// selection
 	if ((!sqare[x][y].is_empty())) {  
-
-		int num = to_sq_num(x, y);  
-
+		
 		if (now_color != sqare[x][y].get_color()) {
 			return;
 		}
 
-
-		if (!is_selected_flag) { // выделение
-			select(x, y, num, sq);
+		if (!is_selected_flag) { 
+			select(x, y, sq);
 		}
-		else if (num == selected_num) { // снятие выделения
+		else if (x == selected_x && y == selected_y && !is_double_jump_flag) { 
 			remove_selection(sq);
 		}
-		else { // перевыделение 
-
+		else if (!is_double_jump_flag){
 			remove_selection(sq);
-			select(x, y, num, sq);
+			select(x, y, sq);
 		}
 	}
 
-	// ход
+	// move
 	else if (is_selected_flag) { 
 
-		// обычный ход
-		if (is_empty_in_radius(x, y, 1)) {
+		// only move
+		if (is_this_in_radius(x, y, 1) && !is_double_jump_flag) {
 
 			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x, y));
 			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
 
 			remove_selection(sq);
 			now_color = !now_color;
-			
 		}
 
-		// съесть шашку
-		else if (is_empty_in_radius(x,y,2)){
+		// jump
+		else if (is_this_in_radius(x,y,2)){
 
 			int tmp_x = (x + selected_x) / 2;
 			int tmp_y = (y + selected_y) / 2;
@@ -114,15 +136,26 @@ void type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]) 
 				return;
 			}
 
-				sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x,y));
-				mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
+			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x,y));
+			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
+			sqare[tmp_x][tmp_y].delete_cheker();
 
-				sqare[tmp_x][tmp_y].delete_cheker();
+			
+			if (is_double_jump(x, y, sqare)) {
 				remove_selection(sq);
-				now_color = !now_color;
+				select(x, y, sq);
+				is_double_jump_flag = true;
+				return;
+			}
+			
 
-		}
+			remove_selection(sq);
+			is_double_jump_flag = false;
+			now_color = !now_color;
+		}	
 	}
+
+
 }
 
 
