@@ -9,11 +9,11 @@
 
 
 struct Message {
-  unsigned int x_from;
-  unsigned int y_from;
-  unsigned int x_to;
-  unsigned int y_to;
-  unsigned int state;
+  int x_from;
+  int y_from;
+  int x_to;
+  int y_to;
+  int state;
 };
 
 sf::Packet& operator<<(sf::Packet& packet, const Message message);
@@ -23,7 +23,7 @@ sf::Packet& operator>>(sf::Packet& packet, Message& message);
 class SocketManager {
 public:
 
-  void start(std::optional<sf::IpAddress> client_ip_address = std::nullopt);
+  void start(unsigned int port, std::optional<sf::IpAddress> client_ip_address = std::nullopt);
   void stop();
 
   bool send_message(Message& message);
@@ -39,7 +39,7 @@ public:
 
 private:
 
-  const unsigned int PORT_ = 8012;
+  unsigned int port_;
 
   std::thread thread_;
   std::atomic<bool> is_running_ = false;

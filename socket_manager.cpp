@@ -37,7 +37,9 @@ sf::Packet& operator>>(sf::Packet& packet, Message& message) {
  *
  * @param client_ip_address the ip address of the server to connect to as a client (optional).
  */
-void SocketManager::start(const std::optional<sf::IpAddress> client_ip_address) {
+void SocketManager::start(const unsigned int port, const std::optional<sf::IpAddress> client_ip_address) {
+
+  port_ = port;
 
   bool expected_is_running = false;
 
@@ -108,14 +110,14 @@ void SocketManager::run_server_() {
 
   sf::TcpListener listener;
 
-  if (listener.listen(PORT_) != sf::Socket::Status::Done) {
-    std::cerr << "[ERROR] Failed to receive a connection with the socket at port: " << PORT_ << std::endl;
+  if (listener.listen(port_) != sf::Socket::Status::Done) {
+    std::cerr << "[ERROR] Failed to receive a connection with the socket at port: " << port_ << std::endl;
     return;
   }
 
   sf::TcpSocket client;
   if (listener.accept(client) != sf::Socket::Status::Done) {
-    std::cerr << "[ERROR] Failed to assign socket to the connection at port: " << PORT_ << std::endl;
+    std::cerr << "[ERROR] Failed to assign socket to the connection at port: " << port_ << std::endl;
     return;
   }
 
@@ -159,7 +161,7 @@ void SocketManager::run_client_(std::optional<sf::IpAddress> ip_address) {
 
   sf::TcpSocket socket;
 
-  sf::Socket::Status status = socket.connect(*ip_address, PORT_, sf::seconds(5));
+  sf::Socket::Status status = socket.connect(*ip_address, port_, sf::seconds(5));
 
   if (status != sf::Socket::Status::Done) {
     std::cerr << "[ERROR] Failed to start a socket at " + ip_address->toString() << std::endl;
