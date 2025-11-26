@@ -15,8 +15,8 @@ const float SQ_SIZE = 84.f;
 const float CHECKER_RADIUS = 32.f;
 const float CHECKER_OFFSET = 10.f;
 
-const float CHEKER_STORAGE_X = 20.f;////////////
-const float CHEKER_STORAGE_Y = 100.f;
+const float CHECKER_STORAGE_X = 20.f;////////////
+const float CHECKER_STORAGE_Y = 100.f;
 
 
 // Colors 
@@ -74,16 +74,13 @@ public:
 	void delete_cheker() {
 		isEmpty = true;
 		isQueen = false;
-		figure->setPosition({ CHEKER_STORAGE_X, CHEKER_STORAGE_Y });
+		figure->setPosition({ CHECKER_STORAGE_X, CHECKER_STORAGE_Y });
 		figure = nullptr;
 	}
 
 	static void move_from_to(mySqare& a, mySqare& b);
 
-
-
-	// only for debug
-	void print() {
+	/*void print() { // only for debug
 		if (isEmpty) std::cout << "is Empty  ";
 		else std::cout << "not Empty  ";
 
@@ -96,7 +93,19 @@ public:
 		if (figure) std::cout << "check " << std::endl;
 		else std::cout << std::endl;
 
-	}
+	}*/
+};
+
+
+
+struct a {
+	unsigned char state;
+
+	unsigned char x;
+	unsigned char y;
+
+	unsigned char to_x;
+	unsigned char to_y;
 };
 
 
@@ -104,6 +113,8 @@ public:
 // from main() ============================================================================================
 sf::Vector2f calculate_checker_position(int i, int j);
 sf::Vector2f calculate_position(int x, int y);
+void set_my_color(bool color);
+void get_from(int& x, int& y);
 
 inline int to_sq_num(int x, int y);
 
@@ -118,4 +129,4 @@ void remove_selection(sf::RectangleShape* sq);
 
 // Events  ================================================================================================
 
-void type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
+bool sqare_type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
