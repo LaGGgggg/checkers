@@ -1,8 +1,35 @@
 # P2P шахматы на C++ 
+
 Peer-to-peer шахматы на C++ с использованием библиотеки SFML для графического интерфейса.
 
 ## Как запустить?
+
+### Cmake
+
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/LaGGgggg/checkers.git
+   cd checkers
+   ```
+
+2. Настройте сборку:
+   ```bash
+   cmake -B build
+   ```
+
+3. Скомпилируйте проект:
+    ```bash
+    cmake --build build
+    ```
+
+4. Запустите приложение:
+    ```bash
+    ./build/bin/Debug/main.exe  # Windows
+    ./build/bin/Debug/main      # Linux/Mac OS
+    ```
+
 ## Для контрибьюторов
+
 Правила:
 - README.md пишем на русском языке
 - Любая документация внутри кода пишется на английском языке
