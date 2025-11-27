@@ -1,52 +1,137 @@
 #pragma once
-
-#include <thread>
-#include <atomic>
-#include <optional>
-
-#include <SFML/Network/IpAddress.hpp>
-#include <SFML/Network/Packet.hpp>
+#include <iostream>
+#include <SFML/Graphics.hpp>
 
 
-struct Message {
-  int x_from;
-  int y_from;
-  int x_to;
-  int y_to;
-  int state;
-};
+// Сonstants ==============================================================================================
+const int WINDOW_X = 1280;
+const int WINDOW_Y = 720;
 
-sf::Packet& operator<<(sf::Packet& packet, const Message message);
-sf::Packet& operator>>(sf::Packet& packet, Message& message);
+const int BUTTON_X = 400;
+const int BUTTON_Y = 150;
+const int BUTTON_OFFSET_X = WINDOW_X / 2 - BUTTON_X / 2;
+const int BUTTON_OFFSET_Y = WINDOW_Y / 2;
+
+const float FIELD_SIZE = 672;
+const float FIELD_OFFSET_X = 308.f;
+const float FIELD_OFFSET_Y = 24.f;
+const float SQ_SIZE = 84.f;
+
+const float CHECKER_RADIUS = 32.f;
+const float CHECKER_OFFSET = 10.f;
+
+const float CHECKER_STORAGE_X = 20.f;////////////
+const float CHECKER_STORAGE_Y = 100.f;
 
 
-class SocketManager {
+// Colors 
+const sf::Color back_color(120, 116, 81);
+const sf::Color outline(34, 29, 19); 
+const sf::Color black_sq(95, 61, 33);
+const sf::Color white_sq(179, 139, 89);
+const sf::Color wite_checker(255, 255, 255);
+const sf::Color black_checker(0, 0, 0);
+const sf::Color selected_sq(0, 150, 40);
+
+// class my_sqare =========================================================================================
+
+class mySqare {
+private:
+	bool isEmpty;
+	bool color;
+	bool isQueen;
+
+	sf::CircleShape* figure;
+
 public:
 
-  void start(unsigned int port, std::optional<sf::IpAddress> client_ip_address = std::nullopt);
-  void stop();
+	mySqare(bool is_empty, bool check_color, bool is_queen, sf::CircleShape* shape) :
+		isEmpty(is_empty), color(check_color), isQueen(is_queen), figure(shape) {}
+	mySqare() :
+		isEmpty(true), color(false), isQueen(false), figure(nullptr) {}
 
-  bool send_message(Message& message);
+	// getters
+	bool is_empty() const {
+		return (isEmpty);
+	}
+	bool get_color() const {
+		return (color);
+	}
+	bool get_is_queen() const {
+		return (isQueen);
+	}
+	sf::CircleShape* get_checker() const {
+		return figure;
+	}
 
-  bool is_message_received();
-  Message get_received_message();
 
-  SocketManager();
-  ~SocketManager();
+	// setters
+	void set_empty() {
+		isEmpty = true;
+	}
+	void set_checker(bool check_color, bool is_queen, sf::CircleShape* shape) {
 
-  SocketManager(const SocketManager&) = delete;
-  SocketManager& operator=(const SocketManager&) = delete;
+		isEmpty = false;
+		color = check_color;
+		isQueen = is_queen;
+		figure = shape;
+	}
+	void delete_cheker() {
+		isEmpty = true;
+		isQueen = false;
+		figure->setPosition({ CHECKER_STORAGE_X, CHECKER_STORAGE_Y });
+		figure = nullptr;
+	}
 
-private:
+	static void move_from_to(mySqare& a, mySqare& b);
 
-  unsigned int port_;
+	/*void print() { // only for debug
+		if (isEmpty) std::cout << "is Empty  ";
+		else std::cout << "not Empty  ";
 
-  std::thread thread_;
-  std::atomic<bool> is_running_ = false;
+		if (color) std::cout << "White  ";
+		else std::cout << "Black  ";
 
-  std::optional<Message> message_to_send_;
-  std::optional<Message> received_message_;
+		if (isQueen) std::cout << "isQueen  ";
+		else std::cout << "not Queen  ";
 
-  void run_server_();
-  void run_client_(std::optional<sf::IpAddress> ip_address);
+		if (figure) std::cout << "check " << std::endl;
+		else std::cout << std::endl;
+
+	}*/
 };
+
+
+
+struct a {
+	unsigned char state;
+
+	unsigned char x;
+	unsigned char y;
+
+	unsigned char to_x;
+	unsigned char to_y;
+};
+
+
+
+// from main() ============================================================================================
+sf::Vector2f calculate_checker_position(int i, int j);
+sf::Vector2f calculate_position(int x, int y);
+void set_my_color(bool color);
+void get_from(int& x, int& y);
+
+inline int to_sq_num(int x, int y);
+
+bool is_this_in_radius(int x, int y, int r);
+bool is_double_jump(int x, int y, mySqare sqare[][8]);
+
+void select(int x, int y, sf::RectangleShape* sq);
+void remove_selection(sf::RectangleShape* sq);
+
+
+
+
+// Events  ================================================================================================
+
+bool sqare_type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
