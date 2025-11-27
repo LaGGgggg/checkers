@@ -7,6 +7,11 @@
 const int WINDOW_X = 1280;
 const int WINDOW_Y = 720;
 
+const int BUTTON_X = 400;
+const int BUTTON_Y = 150;
+const int BUTTON_OFFSET_X = WINDOW_X / 2 - BUTTON_X / 2;
+const int BUTTON_OFFSET_Y = WINDOW_Y / 2;
+
 const float FIELD_SIZE = 672;
 const float FIELD_OFFSET_X = 308.f;
 const float FIELD_OFFSET_Y = 24.f;
@@ -80,35 +85,7 @@ public:
 
 	static void move_from_to(mySqare& a, mySqare& b);
 
-	/*void print() { // only for debug
-		if (isEmpty) std::cout << "is Empty  ";
-		else std::cout << "not Empty  ";
-
-		if (color) std::cout << "White  ";
-		else std::cout << "Black  ";
-
-		if (isQueen) std::cout << "isQueen  ";
-		else std::cout << "not Queen  ";
-
-		if (figure) std::cout << "check " << std::endl;
-		else std::cout << std::endl;
-
-	}*/
 };
-
-
-
-struct a {
-	unsigned char state;
-
-	unsigned char x;
-	unsigned char y;
-
-	unsigned char to_x;
-	unsigned char to_y;
-};
-
-
 
 // from main() ============================================================================================
 sf::Vector2f calculate_checker_position(int i, int j);
