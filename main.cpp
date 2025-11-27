@@ -13,9 +13,11 @@
 #include "storage.h"
 #include "socket_manager.h"
 
-bool at_home = false;
-bool is_end = false;
+
+
 bool is_waiting_for = false;
+bool is_end = false;
+bool is_error = false;
 int last_x, last_y;
 
 
@@ -24,24 +26,43 @@ mySqare sqare[8][8]; // creating fied [y][x]
 void seting_home_screen(sf::CircleShape& white_example, sf::CircleShape& black_example);
 void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]);
 void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_checker[12]);
+void setting_error_screen(sf::RectangleShape& button);
 
 int main(int argc, char* argv[]) {
+	
 
 	// window ==================================================================================================================================================================
 	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks");
+	/*sf::Font font ;
+	if (!font.openFromFile("text.ttf")){
+		std::cout << "ERROR: can't open font " << std::endl;
+		return 0;
+	}*/
 
 	sf::RectangleShape background({ WINDOW_X, WINDOW_Y });
 	background.setFillColor(back_color);
 
 
-
-	// Home screen =============================================================================================================================================================
+	// Home screen ====================================================================================
 	sf::CircleShape white_example;
 	sf::CircleShape black_example;
 	seting_home_screen(white_example, black_example);
+	
+	window.draw(background);
+	window.draw(white_example);
+	window.draw(black_example);
+	window.display();
 
 
-	// Creating server / client
+	// Field screen ===================================================================================
+	sf::RectangleShape field({ FIELD_SIZE, FIELD_SIZE }); // (White sqares)
+	sf::RectangleShape sq[32];		// Black sqares
+	sf::CircleShape w_checker[12];	// White checkers
+	sf::CircleShape b_checker[12];	// Black checkers
+	seting_field(field, sq);
+
+
+	// Creating server / client =======================================================================
 	const bool is_client = (argc > 1 && std::string(argv[1]) == "client");
 
 	SocketManager socket_manager_server;
@@ -51,18 +72,12 @@ int main(int argc, char* argv[]) {
 	socket_manager_server.start(is_client ? 9001 : 8012);  
 
 
-	// set color
+	// set color 
 	bool MY_COLOR;
 	if (!is_client) {
 		MY_COLOR = rand() % 2;
 
-		Message message{
-					  .x_from = !MY_COLOR,
-					  .y_from = 0,
-					  .x_to = 0,
-					  .y_to = 0,
-					  .state = 2
-		};
+		Message message{.x_from = !MY_COLOR, .y_from = 0, .x_to = 0, .y_to = 0, .state = 2};
 		socket_manager_client.send_message(message);  // sent other color
 	}
 	else {
@@ -74,7 +89,6 @@ int main(int argc, char* argv[]) {
 				MY_COLOR = received_message.x_from;
 				break;
 			}
-
 		}
 	}
 
@@ -82,18 +96,9 @@ int main(int argc, char* argv[]) {
 	set_my_color(MY_COLOR); // set to storage.cpp
 
 
-
-	// Field screen ============================================================================================================================================================
-	sf::RectangleShape field({ FIELD_SIZE, FIELD_SIZE }); // Field (white sqares)
-	sf::RectangleShape sq[32];		// Black sqares
-	sf::CircleShape w_checker[12];	// White checkers
-	sf::CircleShape b_checker[12];	// Black checkers
-
-	seting_field(field, sq);
+	
+	// setting and binding checkers and sqares ========================================================
 	setting_chekers(pos, w_checker, b_checker);
-
-
-	// binding checkers and sqares
 	int k = 0;
 	for (int i = 0 + pos; i < 3 + pos; ++i) {                //y
 		for (int j = 0; j < 8; ++j) {                        //x
@@ -124,53 +129,25 @@ int main(int argc, char* argv[]) {
 
 
 
-	while (window.isOpen()) { //    Window    ==================================================================================================================================
+	while (window.isOpen()) { //   Window   ====================================================================================================================================
 		
-		if (is_waiting_for) {
-
-			if (socket_manager_server.is_message_received()) {
-				Message received_message = socket_manager_server.get_received_message();
-
-				if (received_message.state == 0) {
-					std::cout << "Error connection" << std::endl;
-					is_end = true;
-				}
-				if (received_message.state == 3) {
-					std::cout << "Error 3" << std::endl;
-					is_end = true;
-				}
-
-				std::cout << "[INFO] Received message: from (" << received_message.x_from << ", " << received_message.y_from << ") "
-					<< "to (" << received_message.x_to << ", " << received_message.y_to << ") "
-					<< "state: " << received_message.state << std::endl;
-
-				// move
-				sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
-				if (!sqare_type(received_message.x_to, received_message.y_to, sq, sqare)) { // incorrect move
-
-					std::cout << "ERROR" << std::endl;
-					is_end = true;
-					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 3 };
-					socket_manager_client.send_message(message);
-
-				}
-				is_waiting_for = false;
-
-			}
-
-
-		}
-
-
-
-		while (const std::optional event = window.pollEvent()) {  // pollEvent - возвращает событие, если оно ожидает обработки
+		while (const std::optional event = window.pollEvent()) {  
 
 			if (event->is<sf::Event::Closed>()) {
 				window.close();
 			}
+			if (is_error) {
 
 
-			// type ======================================================================================================================================================
+
+				if (const auto* mouseButton = event->getIf<sf::Event::MouseButtonPressed>()) {
+
+				}
+
+			}
+			
+
+			// type ==============================================================================================================================
 			if (const auto* mouseButton = event->getIf<sf::Event::MouseButtonPressed>()) {
 
 				int click_x = mouseButton->position.x;
@@ -213,14 +190,54 @@ int main(int argc, char* argv[]) {
 			
 		}
 
+		if (is_waiting_for) {
+
+			if (socket_manager_server.is_message_received()) {
+				Message received_message = socket_manager_server.get_received_message();
+
+				if (received_message.state == 0) {
+					std::cout << "Error connection" << std::endl;
+					is_error = true;
+				}
+				if (received_message.state == 3) {
+					std::cout << "Error 3" << std::endl;
+					is_error = true;
+				}
+
+				std::cout << "[INFO] Received message: from (" << received_message.x_from << ", " << received_message.y_from << ") "
+					<< "to (" << received_message.x_to << ", " << received_message.y_to << ") "
+					<< "state: " << received_message.state << std::endl;
+
+				// move
+				sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
+				if (!sqare_type(received_message.x_to, received_message.y_to, sq, sqare)) { // incorrect move
+
+					std::cout << "ERROR" << std::endl;
+					is_error = true;
+					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 3 };
+					socket_manager_client.send_message(message);
+
+				}
+				is_waiting_for = false;
+
+			}
+
+
+		}
 
 
 		window.clear();
 		window.draw(background);
-		if (at_home) {
+		if (is_end) {
+			
+			
 
-			window.draw(white_example);
-			window.draw(black_example);
+		}
+		else if (is_error) {
+			
+			sf::RectangleShape button({ BUTTON_X, BUTTON_Y });
+			setting_error_screen(button);
+			window.draw(button);
 
 		}
 		else {
@@ -238,11 +255,11 @@ int main(int argc, char* argv[]) {
 
 		window.display();
 		
+
 	}
 
 	return 0;
 }
-
 
 
 
@@ -329,7 +346,14 @@ void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_c
 	}
 
 }
+void setting_error_screen(sf::RectangleShape& button) {
 
+	button.setFillColor(black_sq);
+	button.setOutlineThickness(-1);
+	button.setOutlineColor(black_checker);
+	button.setPosition({ BUTTON_OFFSET_X, BUTTON_OFFSET_Y });
+
+}
 
 /*
 message state:
