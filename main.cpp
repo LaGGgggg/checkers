@@ -15,7 +15,7 @@
 
 bool at_home = false;
 bool is_end = false;
-bool is_waiting_for = false; 
+bool is_waiting_for = false;
 int last_x, last_y;
 
 
@@ -42,13 +42,13 @@ int main(int argc, char* argv[]) {
 
 
 	// Creating server / client
-	const bool is_client = (argc > 1 && std::string(argv[1]) == "client"); 
+	const bool is_client = (argc > 1 && std::string(argv[1]) == "client");
 
 	SocketManager socket_manager_server;
 	SocketManager socket_manager_client;
 
-	socket_manager_client.start(is_client ? 8012 : 9001, sf::IpAddress({ 127, 0, 0, 1 }));  // клиент должен подключаться к серверу на одном порту
-	socket_manager_server.start(is_client ? 9001 : 8012);  // сокета два => два порта
+	socket_manager_client.start(is_client ? 8012 : 9001, sf::IpAddress({ 127, 0, 0, 1 }));  
+	socket_manager_server.start(is_client ? 9001 : 8012);  
 
 
 	// set color
@@ -62,15 +62,15 @@ int main(int argc, char* argv[]) {
 					  .x_to = 0,
 					  .y_to = 0,
 					  .state = 2
-		};  
+		};
 		socket_manager_client.send_message(message);  // sent other color
 	}
 	else {
 		while (true) {
 
-			if (socket_manager_server.is_message_received()) {  
-				Message received_message = socket_manager_server.get_received_message();  
-				
+			if (socket_manager_server.is_message_received()) {
+				Message received_message = socket_manager_server.get_received_message();
+
 				MY_COLOR = received_message.x_from;
 				break;
 			}
@@ -78,9 +78,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	int pos = MY_COLOR ? 5 : 0;  
+	int pos = MY_COLOR ? 5 : 0;
 	set_my_color(MY_COLOR); // set to storage.cpp
-
 
 
 
@@ -116,16 +115,54 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-
-
-
-
-
+	is_waiting_for = !MY_COLOR;
+	
 
 	
-	
+
+
+
+
 
 	while (window.isOpen()) { //    Window    ==================================================================================================================================
+		
+		if (is_waiting_for) {
+
+			if (socket_manager_server.is_message_received()) {
+				Message received_message = socket_manager_server.get_received_message();
+
+				if (received_message.state == 0) {
+					std::cout << "Error connection" << std::endl;
+					is_end = true;
+				}
+				if (received_message.state == 3) {
+					std::cout << "Error 3" << std::endl;
+					is_end = true;
+				}
+
+				std::cout << "[INFO] Received message: from (" << received_message.x_from << ", " << received_message.y_from << ") "
+					<< "to (" << received_message.x_to << ", " << received_message.y_to << ") "
+					<< "state: " << received_message.state << std::endl;
+
+				// move
+				sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
+				if (!sqare_type(received_message.x_to, received_message.y_to, sq, sqare)) { // incorrect move
+
+					std::cout << "ERROR" << std::endl;
+					is_end = true;
+					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 3 };
+					socket_manager_client.send_message(message);
+
+				}
+				is_waiting_for = false;
+
+			}
+
+
+		}
+
+
+
 		while (const std::optional event = window.pollEvent()) {  // pollEvent - возвращает событие, если оно ожидает обработки
 
 			if (event->is<sf::Event::Closed>()) {
@@ -151,15 +188,15 @@ int main(int argc, char* argv[]) {
 						is_waiting_for = true;
 
 						Message message{
-					  .x_from = last_x,
-					  .y_from = last_y,
-					  .x_to = x,
-					  .y_to = y,
-					  .state = 1};  
+					  .x_from = 7 - last_x,
+					  .y_from = 7 - last_y,
+					  .x_to = 7 - x,
+					  .y_to = 7 - y,
+					  .state = 1 };
 
 						// send message
 						socket_manager_client.send_message(message);
-						std::cout << "Client sent message to ("<< last_x <<" " << last_y << " -> " << x << ", " << y << ")" << std::endl;
+						std::cout << "Client sent message to (" << last_x << " " << last_y << " -> " << x << ", " << y << ")" << std::endl;
 					}
 					else {
 
@@ -169,39 +206,11 @@ int main(int argc, char* argv[]) {
 
 
 				}
-				if (is_waiting_for) {
-					
-					if (socket_manager_server.is_message_received()) {  
-						Message received_message = socket_manager_server.get_received_message(); 
 
-						if (received_message.state == 0) {
-							std::cout << "Error connection" << std::endl;
-							is_end = true;
-						}
-						if (received_message.state == 3) {
-							std::cout << "Error" << std::endl;
-							is_end = true;
-						}
-
-						std::cout << "[INFO] Received message: from (" << received_message.x_from << ", " << received_message.y_from << ") "
-							<< "to (" << received_message.x_to << ", " << received_message.y_to << ") "
-							<< "state: " << received_message.state << std::endl;  
-
-						// move
-						sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
-						if (!sqare_type(received_message.x_to, received_message.y_to, sq, sqare)) { // incorrect move
-
-							std::cout << "ERROR" << std::endl;
-							is_end = true;
-							Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 3 };
-							socket_manager_client.send_message(message);
-							
-						}
-
-
-					}
-				}
+				
 			}
+
+			
 		}
 
 
@@ -228,7 +237,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		window.display();
-
+		
 	}
 
 	return 0;
@@ -328,6 +337,5 @@ message state:
 1 - move
 2 - recive color
 3 - error
-4 - end 
+4 - end
 */
-
