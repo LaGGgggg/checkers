@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
 				Message received_message = socket_manager_server.get_received_message();  
 				
 				MY_COLOR = received_message.x_from;
+				break;
 			}
 
 		}
