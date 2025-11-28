@@ -11,6 +11,8 @@ bool is_double_jump_flag = false;
 
 bool now_color = true;
 bool MY_COLOR;
+int my_counter = 0;
+int other_counter = 0;
 
 
 // Functions ========================================================================================================================
@@ -31,6 +33,17 @@ void get_from(int& x, int& y) {
 	x = selected_x;
 	y = selected_y;
 	std::cout << selected_x << "   " << selected_y << std::endl;
+}
+int get_status_of_play() { // 0 - contining,	1 - my win,		2 - other win
+
+	if (my_counter == 12) {
+		return 1;
+	}
+	if (other_counter == 12) {
+		return 2;
+	}
+
+	return 0;
 }
 
 
@@ -95,21 +108,22 @@ void remove_selection(sf::RectangleShape* sq) {
 	selected_y = -1;
 }
 
-// Обработка событий ================================================================================================================
+// Events  =====================================================================================================================
 
 
-// return: 0 - was move, 1 - was jump, 2 - selection
+// return: 0 - was move, 1 - was jump, 2 - selection, 3 - nothing
 int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
-	
+ 	
 	if ((x + y) % 2 == 0) { // is not black sqare
-		return 2;
+		return 3;
 	}
 
 	// selection
 	if ((!sqare[x][y].is_empty())) {  
+	
 		
 		if (now_color != sqare[x][y].get_color()) {
-			return 2;
+			return 3;
 		}
 
 		if (!is_selected_flag) { 
@@ -127,6 +141,7 @@ int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
 
 	// move
 	else if (is_selected_flag) { 
+		
 
 		// only move
 		if (is_this_in_radius(x, y, 1) && !is_double_jump_flag) {
@@ -153,6 +168,13 @@ int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
 			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x,y));
 			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
 			sqare[tmp_x][tmp_y].delete_cheker();
+			
+			if (now_color == MY_COLOR) {
+				++my_counter;
+			}
+			else {
+				++other_counter;
+			}
 
 			
 			if (is_double_jump(x, y, sqare)) {
@@ -166,13 +188,17 @@ int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
 			remove_selection(sq);
 			is_double_jump_flag = false;
 			now_color = !now_color;
+			
+			
 			return 0;
 		}	
 	}
+
+	return 3;
 }
 
 
-// class my_sqare ===================================================================================================================
+// class my_sqare ===============================================================================================================
 void mySqare::move_from_to(mySqare& a, mySqare& b) {
 	bool tmp;
 
