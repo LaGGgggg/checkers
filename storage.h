@@ -85,7 +85,6 @@ public:
 	}
 
 	static void move_from_to(mySqare& a, mySqare& b);
-
 };
 
 
@@ -105,6 +104,11 @@ void select(int x, int y, sf::RectangleShape* sq);
 void remove_selection(sf::RectangleShape* sq);
 
 
+
+void set_example(sf::CircleShape& example);
+void seting_home_screen(sf::Text& load_text);
+void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]);
+void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_checker[12]);
 
 
 // Events  ================================================================================================
