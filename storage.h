@@ -34,8 +34,8 @@ const sf::Color black_checker(53, 46, 30);
 const sf::Color selected_sq(0, 150, 40);
 const sf::Color interface(54, 64, 37);
 
-// class my_sqare =========================================================================================
 
+// class my_sqare =========================================================================================
 class mySqare {
 private:
 	bool isEmpty;
@@ -88,11 +88,13 @@ public:
 
 };
 
+
 // from main() ============================================================================================
 sf::Vector2f calculate_checker_position(int i, int j);
 sf::Vector2f calculate_position(int x, int y);
 void set_my_color(bool color);
 void get_from(int& x, int& y);
+int get_status_of_play();
 
 inline int to_sq_num(int x, int y);
 
