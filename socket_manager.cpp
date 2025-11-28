@@ -126,6 +126,8 @@ void SocketManager::run_server_() {
 
   sf::Packet received_packet;
 
+  bool is_receive_failed = false;
+
   while (is_running_.load()) {
 
     switch (client.receive(received_packet)) {
@@ -147,7 +149,11 @@ void SocketManager::run_server_() {
 
       default:
 
-        std::cerr << "[ERROR] Failed to receive data from client" << std::endl;
+        if (!is_receive_failed) {
+          std::cerr << "[ERROR] Failed to receive data from client" << std::endl;
+          is_receive_failed = true;
+        }
+
         break;
     }
 
