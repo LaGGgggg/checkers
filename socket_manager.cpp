@@ -147,7 +147,7 @@ void SocketManager::run_server_() {
 
       default:
 
-        std::cerr << "[ERROR] Failed to receive data from client";
+        std::cerr << "[ERROR] Failed to receive data from client" << std::endl;
         break;
     }
 
@@ -161,14 +161,21 @@ void SocketManager::run_client_(std::optional<sf::IpAddress> ip_address) {
 
   sf::TcpSocket socket;
 
-  sf::Socket::Status status = socket.connect(*ip_address, port_, sf::seconds(180));
-
-  if (status != sf::Socket::Status::Done) {
-    std::cerr << "[ERROR] Failed to start a socket at " + ip_address->toString() << std::endl;
-    return;
-  }
+  bool is_connected = false;
 
   while (is_running_.load()) {
+
+    if (!is_connected) {
+
+      sf::Socket::Status status = socket.connect(*ip_address, port_, sf::seconds(3));
+
+      if (status == sf::Socket::Status::Done) {
+        is_connected = true;
+      } else {
+        std::cerr << "[ERROR] Failed to start a socket at " + ip_address->toString() << std::endl;
+        continue;
+      }
+    }
 
     if (message_to_send_.has_value()) {
 
@@ -177,7 +184,7 @@ void SocketManager::run_client_(std::optional<sf::IpAddress> ip_address) {
       packet << *message_to_send_;
 
       if (socket.send(packet) != sf::Socket::Status::Done) {
-        std::cerr << "[ERROR] Failed to send data to " + ip_address->toString();
+        std::cerr << "[ERROR] Failed to send data to " + ip_address->toString() << std::endl;
       } else {
         message_to_send_.reset();
       }
