@@ -14,16 +14,19 @@
 #include "socket_manager.h"
 
 
-
+bool is_load = true;
 bool is_waiting_for = false;
 bool is_end = false;
 bool is_error = false;
+
 int last_x, last_y;
+int my_counter, other_counter;
+
 
 
 mySqare sqare[8][8]; // creating fied [y][x]
 
-void seting_home_screen(sf::CircleShape& white_example, sf::CircleShape& black_example);
+void seting_home_screen(sf::CircleShape& white_example, sf::CircleShape& black_example, sf::Text& load_text);
 void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]);
 void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_checker[12]);
 void setting_error_screen(sf::RectangleShape& button);
@@ -33,11 +36,11 @@ int main(int argc, char* argv[]) {
 
 	// window ==================================================================================================================================================================
 	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks");
-	/*sf::Font font ;
+	sf::Font font ;
 	if (!font.openFromFile("text.ttf")){
 		std::cout << "ERROR: can't open font " << std::endl;
 		return 0;
-	}*/
+	}
 
 	sf::RectangleShape background({ WINDOW_X, WINDOW_Y });
 	background.setFillColor(back_color);
@@ -46,12 +49,18 @@ int main(int argc, char* argv[]) {
 	// Home screen ====================================================================================
 	sf::CircleShape white_example;
 	sf::CircleShape black_example;
-	seting_home_screen(white_example, black_example);
+	sf::Text load_text(font);
+	seting_home_screen(white_example, black_example, load_text);
+
 	
 	window.draw(background);
-	window.draw(white_example);
-	window.draw(black_example);
+	//window.draw(white_example);
+	//window.draw(black_example);
+	window.draw(load_text);
 	window.display();
+
+	// =====================================================
+	sf::RectangleShape button({ BUTTON_X, BUTTON_Y});
 
 
 	// Field screen ===================================================================================
@@ -77,60 +86,63 @@ int main(int argc, char* argv[]) {
 	if (!is_client) {
 		MY_COLOR = rand() % 2;
 
-		Message message{.x_from = !MY_COLOR, .y_from = 0, .x_to = 0, .y_to = 0, .state = 2};
-		socket_manager_client.send_message(message);  // sent other color
+		Message message{.x_from = !MY_COLOR, .y_from = 0, .x_to = 0, .y_to = 0, .state = 5};
+		socket_manager_client.send_message(message);  // send other color
+
 	}
-	else {
-		while (true) {
-
-			if (socket_manager_server.is_message_received()) {
-				Message received_message = socket_manager_server.get_received_message();
-
-				MY_COLOR = received_message.x_from;
-				break;
-			}
-		}
-	}
-
-	int pos = MY_COLOR ? 5 : 0;
-	set_my_color(MY_COLOR); // set to storage.cpp
-
-
 	
-	// setting and binding checkers and sqares ========================================================
-	setting_chekers(pos, w_checker, b_checker);
-	int k = 0;
-	for (int i = 0 + pos; i < 3 + pos; ++i) {                //y
-		for (int j = 0; j < 8; ++j) {                        //x
-			if ((i + j) % 2 == 1) {
-
-				sqare[j][i].set_checker(true, false, &w_checker[k]);
-				++k;
-			}
-		}
-	}
-	k = 0;
-	for (int i = 5 - pos; i < 8 - pos; ++i) {                //y
-		for (int j = 0; j < 8; ++j) {                        //x
-			if ((i + j) % 2 == 1) {
-
-				sqare[j][i].set_checker(false, false, &b_checker[k]);
-				++k;
-			}
-		}
-	}
-
-	is_waiting_for = !MY_COLOR;
-	
-
-	
-
-
-
-
 
 	while (window.isOpen()) { //   Window   ====================================================================================================================================
 		
+		if (is_load) {
+			if (socket_manager_server.is_message_received()) {
+
+				Message received_message = socket_manager_server.get_received_message();
+				if (received_message.state == 5) {
+					is_load = false;
+				}
+				if (is_client) {
+					
+					MY_COLOR = received_message.x_from;
+
+					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 5 };
+					socket_manager_client.send_message(message); // send about connection
+				}
+
+
+				int pos = MY_COLOR ? 5 : 0;
+				set_my_color(MY_COLOR); // set to storage.cpp
+
+
+
+				// setting and binding checkers and sqares ========================================================
+				setting_chekers(pos, w_checker, b_checker);
+				int k = 0;
+				for (int i = 0 + pos; i < 3 + pos; ++i) {                //y
+					for (int j = 0; j < 8; ++j) {                        //x
+						if ((i + j) % 2 == 1) {
+
+							sqare[j][i].set_checker(true, false, &w_checker[k]);
+							++k;
+						}
+					}
+				}
+				k = 0;
+				for (int i = 5 - pos; i < 8 - pos; ++i) {                //y
+					for (int j = 0; j < 8; ++j) {                        //x
+						if ((i + j) % 2 == 1) {
+
+							sqare[j][i].set_checker(false, false, &b_checker[k]);
+							++k;
+						}
+					}
+				}
+
+				is_waiting_for = !MY_COLOR;
+
+			}
+		}
+
 		while (const std::optional event = window.pollEvent()) {  
 
 			if (event->is<sf::Event::Closed>()) {
@@ -139,9 +151,12 @@ int main(int argc, char* argv[]) {
 			if (is_error) {
 
 
-
+				
 				if (const auto* mouseButton = event->getIf<sf::Event::MouseButtonPressed>()) {
-
+					sf::Vector2f point{ static_cast<float>(mouseButton->position.x), static_cast<float>(mouseButton->position.y) };
+					if (button.getGlobalBounds().contains(point)) {
+						return 0;
+					}
 				}
 
 			}
@@ -161,7 +176,8 @@ int main(int argc, char* argv[]) {
 					int x = (click_x - FIELD_OFFSET_X) / SQ_SIZE;
 					int y = (click_y - FIELD_OFFSET_Y) / SQ_SIZE;
 
-					if (sqare_type(x, y, sq, sqare)) {
+					int tmp = sqare_type(x, y, sq, sqare);
+					if (!tmp) {
 						is_waiting_for = true;
 
 						Message message{
@@ -170,24 +186,37 @@ int main(int argc, char* argv[]) {
 					  .x_to = 7 - x,
 					  .y_to = 7 - y,
 					  .state = 1 };
+					
 
 						// send message
 						socket_manager_client.send_message(message);
-						std::cout << "Client sent message to (" << last_x << " " << last_y << " -> " << x << ", " << y << ")" << std::endl;
+						std::cout << "Sent message: " << last_x << " " << last_y << " -> " << x << ", " << y << ", state: 1" << std::endl;
+
+					}
+					else if (tmp == 1) {
+
+						Message message{
+					  .x_from = 7 - last_x,
+					  .y_from = 7 - last_y,
+					  .x_to = 7 - x,
+					  .y_to = 7 - y,
+					  .state = 2 };
+
+
+						// send message
+						socket_manager_client.send_message(message);
+						std::cout << "Sent message: " << last_x << " " << last_y << " -> " << x << ", " << y << ", state: 1" << std::endl;
+
+						last_x = x;
+						last_y = y;
 					}
 					else {
 
 						last_x = x;
 						last_y = y;
 					}
-
-
 				}
-
-				
 			}
-
-			
 		}
 
 		if (is_waiting_for) {
@@ -210,7 +239,7 @@ int main(int argc, char* argv[]) {
 
 				// move
 				sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
-				if (!sqare_type(received_message.x_to, received_message.y_to, sq, sqare)) { // incorrect move
+				if (sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 2) { // incorrect move
 
 					std::cout << "ERROR" << std::endl;
 					is_error = true;
@@ -218,7 +247,9 @@ int main(int argc, char* argv[]) {
 					socket_manager_client.send_message(message);
 
 				}
-				is_waiting_for = false;
+				if (received_message.state != 2){
+					is_waiting_for = false;
+				}
 
 			}
 
@@ -226,16 +257,23 @@ int main(int argc, char* argv[]) {
 		}
 
 
+
 		window.clear();
 		window.draw(background);
-		if (is_end) {
+		if (is_load) {
+			window.draw(background);
+			//window.draw(white_example);
+			//window.draw(black_example);
+			window.draw(load_text);
+		}
+		else if (is_end) {
 			
 			
 
 		}
 		else if (is_error) {
 			
-			sf::RectangleShape button({ BUTTON_X, BUTTON_Y });
+			
 			setting_error_screen(button);
 			window.draw(button);
 
@@ -263,7 +301,7 @@ int main(int argc, char* argv[]) {
 
 
 
-void seting_home_screen(sf::CircleShape& white_example, sf::CircleShape& black_example) {
+void seting_home_screen(sf::CircleShape& white_example, sf::CircleShape& black_example, sf::Text& load_text) {
 
 	white_example.setRadius(CHECKER_RADIUS * 3);
 	white_example.setFillColor(wite_checker);
@@ -276,6 +314,11 @@ void seting_home_screen(sf::CircleShape& white_example, sf::CircleShape& black_e
 	black_example.setOutlineThickness(-1);
 	black_example.setOutlineColor(outline);
 	black_example.setPosition({ WINDOW_X / 2 + 300 - CHECKER_RADIUS * 6, WINDOW_Y / 2 - 100 });
+
+	load_text.setString("Loading...");
+	load_text.setCharacterSize(100);
+	load_text.setPosition({400, 100});
+	load_text.setFillColor(interface);
 }
 void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]) {
 
@@ -348,7 +391,7 @@ void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_c
 }
 void setting_error_screen(sf::RectangleShape& button) {
 
-	button.setFillColor(black_sq);
+	button.setFillColor(interface);
 	button.setOutlineThickness(-1);
 	button.setOutlineColor(black_checker);
 	button.setPosition({ BUTTON_OFFSET_X, BUTTON_OFFSET_Y });
@@ -359,7 +402,8 @@ void setting_error_screen(sf::RectangleShape& button) {
 message state:
 0 - exit
 1 - move
-2 - recive color
+2 - double move
 3 - error
 4 - end
+5 - connection
 */
