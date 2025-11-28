@@ -151,7 +151,7 @@ void SocketManager::run_server_() {
         break;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
   client.disconnect();
@@ -183,7 +183,7 @@ void SocketManager::run_client_(std::optional<sf::IpAddress> ip_address) {
       }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
   socket.disconnect();
