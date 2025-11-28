@@ -36,14 +36,99 @@ void get_from(int& x, int& y) {
 }
 int get_status_of_play() { // 0 - contining,	1 - my win,		2 - other win
 
-	if (my_counter == 12) {
+	if (my_counter == 1) {
 		return 1;
 	}
-	if (other_counter == 12) {
+	if (other_counter == 1) {
 		return 2;
 	}
 
 	return 0;
+}
+
+void seting_home_screen(sf::Text& load_text) {
+
+	load_text.setString("Loading...");
+	load_text.setCharacterSize(100);
+	load_text.setPosition({ 400, 200 });
+	load_text.setFillColor(interface);
+}
+void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]) {
+
+	field.setFillColor(white_sq);
+	field.setPosition({ FIELD_OFFSET_X, FIELD_OFFSET_Y });
+	field.setOutlineThickness(3);
+	field.setOutlineColor(outline);
+
+	// Black sqares
+	for (int i = 0; i < 32; ++i) {
+
+		sq[i].setSize({ SQ_SIZE, SQ_SIZE });
+		sq[i].setFillColor(black_sq);
+		sq[i].setOutlineThickness(-2);
+		sq[i].setOutlineColor(black_sq);
+
+	}
+	int k = 0;
+	for (int i = 0; i < 8; ++i) {
+		for (int j = 0; j < 4; ++j) {
+
+			sq[k].setPosition(calculate_checker_position(i, j));
+			++k;
+		}
+	}
+
+
+
+}
+void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_checker[12]) {
+
+	// White checkers
+	int k = 0;
+	for (int i = 0; i < 12; ++i) {
+
+		w_checker[i].setRadius(CHECKER_RADIUS);
+		w_checker[i].setFillColor(wite_checker);
+		w_checker[i].setOutlineThickness(-1);
+		w_checker[i].setOutlineColor(white_sq);
+
+	}
+	k = 0;
+	for (int i = 0 + pos; i < 3 + pos; ++i) {
+		for (int j = 0; j < 4; ++j) {
+
+			w_checker[k].setPosition(calculate_checker_position(i, j) + sf::Vector2f{ CHECKER_OFFSET, CHECKER_OFFSET });
+			++k;
+		}
+	}
+
+	// Black checkers
+	k = 0;
+	for (int i = 0; i < 12; ++i) {
+
+		b_checker[i].setRadius(CHECKER_RADIUS);
+		b_checker[i].setFillColor(black_checker);
+		b_checker[i].setOutlineThickness(-1);
+		b_checker[i].setOutlineColor(outline);
+
+	}
+	for (int i = 5 - pos; i < 8 - pos; ++i) {
+		for (int j = 0; j < 4; ++j) {
+
+			b_checker[k].setPosition(calculate_checker_position(i, j) + sf::Vector2f{ CHECKER_OFFSET, CHECKER_OFFSET });
+			++k;
+
+		}
+	}
+
+}
+void set_example(sf::CircleShape& example) {
+	if (now_color) {
+		example.setFillColor(wite_checker);
+	}
+	else {
+		example.setFillColor(black_checker);
+	}
 }
 
 
