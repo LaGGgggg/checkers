@@ -161,7 +161,7 @@ void SocketManager::run_client_(std::optional<sf::IpAddress> ip_address) {
 
   sf::TcpSocket socket;
 
-  sf::Socket::Status status = socket.connect(*ip_address, port_, sf::seconds(5));
+  sf::Socket::Status status = socket.connect(*ip_address, port_, sf::seconds(180));
 
   if (status != sf::Socket::Status::Done) {
     std::cerr << "[ERROR] Failed to start a socket at " + ip_address->toString() << std::endl;
