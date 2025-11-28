@@ -20,7 +20,7 @@ const float SQ_SIZE = 84.f;
 const float CHECKER_RADIUS = 32.f;
 const float CHECKER_OFFSET = 10.f;
 
-const float CHECKER_STORAGE_X = 20.f;////////////
+const float CHECKER_STORAGE_X = 2000.f;
 const float CHECKER_STORAGE_Y = 100.f;
 
 
@@ -30,8 +30,9 @@ const sf::Color outline(34, 29, 19);
 const sf::Color black_sq(95, 61, 33);
 const sf::Color white_sq(179, 139, 89);
 const sf::Color wite_checker(255, 255, 255);
-const sf::Color black_checker(0, 0, 0);
+const sf::Color black_checker(53, 46, 30);
 const sf::Color selected_sq(0, 150, 40);
+const sf::Color interface(54, 64, 37);
 
 // class my_sqare =========================================================================================
 
@@ -106,4 +107,4 @@ void remove_selection(sf::RectangleShape* sq);
 
 // Events  ================================================================================================
 
-bool sqare_type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
+int sqare_type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
