@@ -170,6 +170,7 @@ int main(int argc, char* argv[]) {
 					is_error = true;
 				}
 				if (received_message.state == 3) { // error move
+					text.setPosition({ 250, 200 });
 					error_message = "Wrong move";
 					is_error = true;
 				}
@@ -180,6 +181,7 @@ int main(int argc, char* argv[]) {
 					sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 3) { // incorrect move
 
 					is_error = true;
+					text.setPosition({ 250, 200 });
 					error_message = "Wrong move";
 					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 3 };
 					socket_manager_client.send_message(message);
@@ -235,8 +237,8 @@ int main(int argc, char* argv[]) {
 
 					if (tmp == 0) { // single move
 
-						Message message{ .x_from = 7 - last_x, .y_from = 7 - last_y, .x_to = 7 - x, .y_to = 7 - y, .state = 1 };
-						//Message message{ .x_from = 1, .y_from = 1, .x_to = 6, .y_to = 6, .state = 1 };
+						//Message message{ .x_from = 7 - last_x, .y_from = 7 - last_y, .x_to = 7 - x, .y_to = 7 - y, .state = 1 };
+						Message message{ .x_from = 1, .y_from = 1, .x_to = 6, .y_to = 6, .state = 1 };
 						socket_manager_client.send_message(message);
 						std::cout << "Sent message: " << last_x << " " << last_y << " -> " << x << ", " << y << ", state: 1" << std::endl;
 
