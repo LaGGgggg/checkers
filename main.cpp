@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 
 
 				if (received_message.state == 0) { // error connection
-					error_message = "Disconnection";
+					error_message = "Disconnected";
 					text.setPosition({ 250, 200 });
 					is_error = true;
 				}
@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
 
 				if (received_message.state == 0) { // error connection
 					text.setPosition({ 250, 200 });
-					error_message = "Disconnection";
+					error_message = "Disconnected";
 					is_error = true;
 				}
 			}
