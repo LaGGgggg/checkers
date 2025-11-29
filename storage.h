@@ -1,11 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <SFML/Network/IpAddress.hpp>
-
-
-const int port_1 = 8012;
-const int post_2 = 9001;
-const sf::IpAddress IP({ 127, 0, 0, 1 });
 
 
 // Сonstants ==============================================================================================

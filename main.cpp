@@ -5,8 +5,6 @@
 #include <SFML/Window.hpp>
 #include <optional>
 #include <SFML/Audio.hpp>
-#include <cmath>
-#include <ctime>
 #include <cstdlib>
 
 
@@ -74,8 +72,8 @@ int main(int argc, char* argv[]) {
 	SocketManager socket_manager_server;
 	SocketManager socket_manager_client;
 
-	socket_manager_client.start(is_client ? port_1 : post_2, IP);
-	socket_manager_server.start(is_client ? post_2 : port_1); 
+	socket_manager_client.start(is_client ? port_1 : port_2, IP);
+	socket_manager_server.start(is_client ? port_2 : port_1); 
 
 
 	// set color 
