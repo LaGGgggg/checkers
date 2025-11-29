@@ -74,8 +74,8 @@ int main(int argc, char* argv[]) {
 	SocketManager socket_manager_server;
 	SocketManager socket_manager_client;
 
-	socket_manager_client.start(is_client ? 8012 : 9001, sf::IpAddress({ 127, 0, 0, 1 }));  //{ 127, 0, 0, 1 } - local
-	socket_manager_server.start(is_client ? 9001 : 8012);  
+	socket_manager_client.start(is_client ? port_1 : post_2, IP);
+	socket_manager_server.start(is_client ? post_2 : port_1); 
 
 
 	// set color 
@@ -311,4 +311,5 @@ message state:
 4 - end
 5 - connection ok
 */
+
 
