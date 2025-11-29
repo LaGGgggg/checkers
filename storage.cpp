@@ -2,7 +2,7 @@
 #include "storage.h"
 
 int selected_num = -1;
-int selected_x = -1; 
+int selected_x = -1;
 int selected_y = -1;
 
 bool is_selected_flag = false;
@@ -18,8 +18,8 @@ int other_counter = 0;
 // Functions from main ========================================================================================================================
 
 sf::Vector2f calculate_checker_position(int i, int j) {
-	return {static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE)),
-			static_cast<float>(FIELD_OFFSET_Y + (i * SQ_SIZE))};
+	return { static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE)),
+			static_cast<float>(FIELD_OFFSET_Y + (i * SQ_SIZE)) };
 }
 sf::Vector2f calculate_position(int x, int y) {
 	return{ static_cast<float>(FIELD_OFFSET_X + SQ_SIZE * x + CHECKER_OFFSET),
@@ -27,7 +27,7 @@ sf::Vector2f calculate_position(int x, int y) {
 }
 
 // calculate index -> number of black sqare 
-inline int to_sq_num(int x, int y) { 
+inline int to_sq_num(int x, int y) {
 	return y * 4 + (x - ((y + 1) % 2)) / 2;
 }
 inline bool is_on_field(int x, int y) {
@@ -227,28 +227,28 @@ int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
 
 bool is_this_in_radius(int x, int y, int r) { // return is this sqare enmpty and in radius regarding selected
 	return ((selected_x + r == x) && (selected_y + r == y || selected_y - r == y)) ||
-		   ((selected_x - r == x) && (selected_y + r == y || selected_y - r == y));
+		((selected_x - r == x) && (selected_y + r == y || selected_y - r == y));
 }
-bool is_double_jump(int x, int y,  mySqare sqare[][8]) {
+bool is_double_jump(int x, int y, mySqare sqare[][8]) {
 
-	if (is_on_field(x + 1, y + 1) &&
+	if (is_on_field(x + 1, y + 1) && is_on_field(x + 2, y + 2) &&
 		!sqare[x + 1][y + 1].is_empty() && sqare[x + 2][y + 2].is_empty() &&
-		 sqare[x + 1][y + 1].get_color() != now_color ) {
-			return true;	
+		sqare[x + 1][y + 1].get_color() != now_color) {
+		return true;
 	}
-	if (is_on_field(x + 1, y - 1) &&
+	if (is_on_field(x + 1, y - 1) && is_on_field(x + 2, y - 2) &&
 		!sqare[x + 1][y - 1].is_empty() && sqare[x + 2][y - 2].is_empty() &&
-		 sqare[x + 1][y - 1].get_color() != now_color ) {
+		sqare[x + 1][y - 1].get_color() != now_color) {
 		return true;
 	}
-	if (is_on_field(x - 1, y + 1) &&
+	if (is_on_field(x - 1, y + 1) && is_on_field(x - 2, y + 2) &&
 		!sqare[x - 1][y + 1].is_empty() && sqare[x - 2][y + 2].is_empty() &&
-		 sqare[x - 1][y + 1].get_color() != now_color ) {
+		sqare[x - 1][y + 1].get_color() != now_color) {
 		return true;
 	}
-	if (is_on_field(x - 1, y - 1) &&
+	if (is_on_field(x - 1, y - 1) && is_on_field(x - 2, y - 2) &&
 		!sqare[x - 1][y - 1].is_empty() && sqare[x - 2][y - 2].is_empty() &&
-		 sqare[x - 1][y - 1].get_color() != now_color ) {
+		sqare[x - 1][y - 1].get_color() != now_color) {
 		return true;
 	}
 
