@@ -1,3 +1,4 @@
+#include <SFML/Window/WindowEnums.hpp>
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
@@ -27,7 +28,7 @@ int main(int argc, char* argv[]) {
 	
 
 	// window ========================================================================================================================
-	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks");
+	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks", sf::Style::Titlebar | sf::Style::Close);
 	sf::Font font;
 	if (!font.openFromFile("text.ttf")){
 		std::cout << "ERROR: can't open font " << std::endl;
