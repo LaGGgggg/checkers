@@ -22,10 +22,12 @@ Peer-to-peer шахматы на C++ с использованием библи�
     cmake --build build
     ```
 
-4. Запустите приложение:
+4. Скопируйте файл `text.ttf` в директорию `build/bin`
+
+5. Запустите приложение:
     ```bash
-    ./build/bin/Debug/main.exe  # Windows
-    ./build/bin/Debug/main      # Linux/Mac OS
+    ./build/bin/main.exe  # Windows
+    ./build/bin/main      # Linux/Mac OS
     ```
 
 ## Как играть?
