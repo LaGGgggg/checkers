@@ -7,11 +7,6 @@
 const int WINDOW_X = 1280;
 const int WINDOW_Y = 720;
 
-const int BUTTON_X = 400;
-const int BUTTON_Y = 150;
-const int BUTTON_OFFSET_X = WINDOW_X / 2 - BUTTON_X / 2;
-const int BUTTON_OFFSET_Y = WINDOW_Y / 2;
-
 const float FIELD_SIZE = 672;
 const float FIELD_OFFSET_X = 308.f;
 const float FIELD_OFFSET_Y = 24.f;
@@ -29,7 +24,7 @@ const sf::Color back_color(120, 116, 81);
 const sf::Color outline(34, 29, 19); 
 const sf::Color black_sq(95, 61, 33);
 const sf::Color white_sq(179, 139, 89);
-const sf::Color wite_checker(255, 255, 255);
+const sf::Color white_cheker(255, 255, 255);
 const sf::Color black_checker(53, 46, 30);
 const sf::Color selected_sq(0, 150, 40);
 const sf::Color interface(54, 64, 37);
@@ -41,7 +36,6 @@ private:
 	bool isEmpty;
 	bool color;
 	bool isQueen;
-
 	sf::CircleShape* figure;
 
 public:
@@ -89,28 +83,32 @@ public:
 
 
 // from main() ============================================================================================
+
 sf::Vector2f calculate_checker_position(int i, int j);
 sf::Vector2f calculate_position(int x, int y);
-void set_my_color(bool color);
-void get_from(int& x, int& y);
-int get_status_of_play();
 
 inline int to_sq_num(int x, int y);
+inline bool is_on_field(int x, int y);
+
+void set_my_color(bool color);
+int get_status_of_play();
+
+
+
+// Settings
+void setting_home_screen(sf::Text& load_text);
+void setting_example(sf::CircleShape& example);
+void setting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]);
+void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_checker[12]);
+
+// Events
+int sqare_type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
+
+
+// from storage.cpp() ============================================================================================
 
 bool is_this_in_radius(int x, int y, int r);
 bool is_double_jump(int x, int y, mySqare sqare[][8]);
 
 void select(int x, int y, sf::RectangleShape* sq);
 void remove_selection(sf::RectangleShape* sq);
-
-
-
-void set_example(sf::CircleShape& example);
-void seting_home_screen(sf::Text& load_text);
-void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]);
-void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_checker[12]);
-
-
-// Events  ================================================================================================
-
-int sqare_type(int click_x, int click_y, sf::RectangleShape* sq, mySqare sqare[][8]);
