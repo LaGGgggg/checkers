@@ -11,14 +11,14 @@ bool is_double_jump_flag = false;
 
 bool now_color = true;
 bool MY_COLOR;
+
 int my_counter = 0;
 int other_counter = 0;
 
 
-// Functions ========================================================================================================================
+// Functions from main ========================================================================================================================
 
-// func from main
-sf::Vector2f calculate_checker_position(int i, int j) { // function from main()
+sf::Vector2f calculate_checker_position(int i, int j) {
 	return {static_cast<float>(FIELD_OFFSET_X + (SQ_SIZE * ((i + 1) % 2)) + (j * 2 * SQ_SIZE)),
 			static_cast<float>(FIELD_OFFSET_Y + (i * SQ_SIZE))};
 }
@@ -26,34 +26,48 @@ sf::Vector2f calculate_position(int x, int y) {
 	return{ static_cast<float>(FIELD_OFFSET_X + SQ_SIZE * x + CHECKER_OFFSET),
 			static_cast<float>(FIELD_OFFSET_Y + SQ_SIZE * y + CHECKER_OFFSET) };
 }
+
+// calculate index -> number of black sqare 
+inline int to_sq_num(int x, int y) { 
+	return y * 4 + (x - ((y + 1) % 2)) / 2;
+}
+inline bool is_on_field(int x, int y) {
+	return x >= 0 && x < 8 && y >= 0 && y < 8;
+}
+
 void set_my_color(bool color) {
 	MY_COLOR = color;
 }
-void get_from(int& x, int& y) {
-	x = selected_x;
-	y = selected_y;
-	std::cout << selected_x << "   " << selected_y << std::endl;
-}
 int get_status_of_play() { // 0 - contining,	1 - my win,		2 - other win
 
-	if (my_counter == 1) {
+	if (my_counter == 12) {
 		return 1;
 	}
-	if (other_counter == 1) {
+	if (other_counter == 12) {
 		return 2;
 	}
-
 	return 0;
 }
 
-void seting_home_screen(sf::Text& load_text) {
+
+
+// Settings 
+void setting_home_screen(sf::Text& load_text) {
 
 	load_text.setString("Loading...");
 	load_text.setCharacterSize(100);
 	load_text.setPosition({ 400, 200 });
 	load_text.setFillColor(interface);
 }
-void seting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]) {
+void setting_example(sf::CircleShape& example) {
+	if (now_color) {
+		example.setFillColor(white_cheker);
+	}
+	else {
+		example.setFillColor(black_checker);
+	}
+}
+void setting_field(sf::RectangleShape& field, sf::RectangleShape sq[32]) {
 
 	field.setFillColor(white_sq);
 	field.setPosition({ FIELD_OFFSET_X, FIELD_OFFSET_Y });
@@ -88,7 +102,7 @@ void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_c
 	for (int i = 0; i < 12; ++i) {
 
 		w_checker[i].setRadius(CHECKER_RADIUS);
-		w_checker[i].setFillColor(wite_checker);
+		w_checker[i].setFillColor(white_cheker);
 		w_checker[i].setOutlineThickness(-1);
 		w_checker[i].setOutlineColor(white_sq);
 
@@ -122,24 +136,95 @@ void setting_chekers(int pos, sf::CircleShape w_checker[12], sf::CircleShape b_c
 	}
 
 }
-void set_example(sf::CircleShape& example) {
-	if (now_color) {
-		example.setFillColor(wite_checker);
+
+
+// events
+
+ // return: 0 - was move, 1 - was jump, 2 - selection, 3 - nothing
+int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
+
+	if ((x + y) % 2 == 0) { // is not black sqare
+		return 3;
 	}
-	else {
-		example.setFillColor(black_checker);
+
+	// selection
+	if ((!sqare[x][y].is_empty())) {
+
+		if (now_color != sqare[x][y].get_color()) {
+			return 3;
+		}
+
+		if (!is_selected_flag) {
+			select(x, y, sq);
+		}
+		else if (x == selected_x && y == selected_y && !is_double_jump_flag) {
+			remove_selection(sq);
+		}
+		else if (!is_double_jump_flag) {
+			remove_selection(sq);
+			select(x, y, sq);
+		}
+		return 2;
 	}
+
+	// move
+	else if (is_selected_flag) {
+
+		// only move
+		if (is_this_in_radius(x, y, 1) && !is_double_jump_flag) {
+
+			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x, y));
+			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
+
+			remove_selection(sq);
+			now_color = !now_color;
+			return 0;
+		}
+
+		// jump
+		else if (is_this_in_radius(x, y, 2)) {
+
+			int tmp_x = (x + selected_x) / 2;
+			int tmp_y = (y + selected_y) / 2;
+
+			if (sqare[tmp_x][tmp_y].is_empty() ||
+				sqare[tmp_x][tmp_y].get_color() == now_color) {
+				return 1;
+			}
+
+			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x, y));
+			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
+			sqare[tmp_x][tmp_y].delete_cheker();
+
+			if (now_color == MY_COLOR) {
+				++my_counter;
+			}
+			else {
+				++other_counter;
+			}
+
+			if (is_double_jump(x, y, sqare)) {
+				remove_selection(sq);
+				select(x, y, sq);
+				is_double_jump_flag = true;
+				return 1;
+			}
+
+			remove_selection(sq);
+			is_double_jump_flag = false;
+			now_color = !now_color;
+
+			return 0;
+		}
+	}
+
+	return 3;
 }
 
 
 
-inline int to_sq_num (int x, int y) { // calculate index -> number of black sqare 
-	return y * 4 + (x - ((y + 1) % 2)) / 2;
-}
-inline bool is_on_field(int x, int y) {
-	return x >= 0 && x < 8 && y >= 0 && y < 8;
-}
 
+// Functions from storage ========================================================================================================================
 
 bool is_this_in_radius(int x, int y, int r) { // return is this sqare enmpty and in radius regarding selected
 	return ((selected_x + r == x) && (selected_y + r == y || selected_y - r == y)) ||
@@ -193,94 +278,7 @@ void remove_selection(sf::RectangleShape* sq) {
 	selected_y = -1;
 }
 
-// Events  =====================================================================================================================
 
-
-// return: 0 - was move, 1 - was jump, 2 - selection, 3 - nothing
-int sqare_type(int x, int y, sf::RectangleShape* sq, mySqare sqare[][8]) {
- 	
-	if ((x + y) % 2 == 0) { // is not black sqare
-		return 3;
-	}
-
-	// selection
-	if ((!sqare[x][y].is_empty())) {  
-	
-		
-		if (now_color != sqare[x][y].get_color()) {
-			return 3;
-		}
-
-		if (!is_selected_flag) { 
-			select(x, y, sq);
-		}
-		else if (x == selected_x && y == selected_y && !is_double_jump_flag) { 
-			remove_selection(sq);
-		}
-		else if (!is_double_jump_flag){
-			remove_selection(sq);
-			select(x, y, sq);
-		}
-		return 2;
-	}
-
-	// move
-	else if (is_selected_flag) { 
-		
-
-		// only move
-		if (is_this_in_radius(x, y, 1) && !is_double_jump_flag) {
-
-			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x, y));
-			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
-
-			remove_selection(sq);
-			now_color = !now_color;
-			return 0;
-		}
-
-		// jump
-		else if (is_this_in_radius(x,y,2)){
-
-			int tmp_x = (x + selected_x) / 2;
-			int tmp_y = (y + selected_y) / 2;
-
-			if (sqare[tmp_x][tmp_y].is_empty() ||
-				sqare[tmp_x][tmp_y].get_color() == now_color) {
-				return 1;
-			}
-
-			sqare[selected_x][selected_y].get_checker()->setPosition(calculate_position(x,y));
-			mySqare::move_from_to(sqare[selected_x][selected_y], sqare[x][y]);
-			sqare[tmp_x][tmp_y].delete_cheker();
-			
-			if (now_color == MY_COLOR) {
-				++my_counter;
-			}
-			else {
-				++other_counter;
-			}
-
-			
-			if (is_double_jump(x, y, sqare)) {
-				remove_selection(sq);
-				select(x, y, sq);
-				is_double_jump_flag = true;
-				return 1;
-			}
-			
-
-			remove_selection(sq);
-			is_double_jump_flag = false;
-			now_color = !now_color;
-			
-			
-			return 0;
-		}	
-	}
-
-	return 3;
-}
 
 
 // class my_sqare ===============================================================================================================
@@ -301,4 +299,3 @@ void mySqare::move_from_to(mySqare& a, mySqare& b) {
 	b.figure = a.figure;
 	a.figure = nullptr;
 }
-
