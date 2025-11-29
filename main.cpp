@@ -237,8 +237,7 @@ int main(int argc, char* argv[]) {
 
 					if (tmp == 0) { // single move
 
-						//Message message{ .x_from = 7 - last_x, .y_from = 7 - last_y, .x_to = 7 - x, .y_to = 7 - y, .state = 1 };
-						Message message{ .x_from = 1, .y_from = 1, .x_to = 6, .y_to = 6, .state = 1 };
+						Message message{ .x_from = 7 - last_x, .y_from = 7 - last_y, .x_to = 7 - x, .y_to = 7 - y, .state = 1 };
 						socket_manager_client.send_message(message);
 						std::cout << "Sent message: " << last_x << " " << last_y << " -> " << x << ", " << y << ", state: 1" << std::endl;
 
