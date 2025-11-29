@@ -28,6 +28,39 @@ Peer-to-peer шахматы на C++ с использованием библи�
     ./build/bin/Debug/main      # Linux/Mac OS
     ```
 
+## Как играть?
+
+### Windows
+
+#### Настройки firewall
+
+Для связи между двумя игроками необходимо добавить разрешение в firewall Windows:
+
+Откройте powershell **от имени администратора** и выполните
+(подставьте ip другого игрока и измените порты, если вы их меняли):
+```powershell
+New-NetFirewallRule `
+  -DisplayName "Checkers" `
+  -Direction Inbound `
+  -Action Allow `
+  -Protocol TCP `
+  -LocalPort 9001,8012 `
+  -RemoteAddress 141.33.4.12
+
+New-NetFirewallRule `
+  -DisplayName "Checkers" `
+  -Direction Outbound `
+  -Action Allow `
+  -Protocol TCP `
+  -LocalPort 9001,8012 `
+  -RemoteAddress 141.33.4.12
+```
+
+*Для удаления всех установленных правил для приложения выполните:*
+```powershell
+Remove-NetFirewallRule -DisplayName "Checkers"
+```
+
 ## Для контрибьюторов
 
 Правила:
