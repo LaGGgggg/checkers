@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 
 	// Home screen ------------------------------------------------------------------------------------
 	sf::Text text(font);
-	seting_home_screen(text);
+	setting_home_screen(text);
 
 	window.draw(background);
 	window.draw(text);
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	sf::RectangleShape sq[32];		// Black sqares
 	sf::CircleShape w_checker[12];	// White checkers
 	sf::CircleShape b_checker[12];	// Black checkers
-	seting_field(field, sq);
+	setting_field(field, sq);
 
 
 
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		if (is_waiting_for) { // other move 
-			set_example(example);
+			setting_example(example);
 			if (socket_manager_server.is_message_received()) {
 
 				Message received_message = socket_manager_server.get_received_message();
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		else { // recive message --------------------------------------------------------------------
-			set_example(example);
+			setting_example(example);
 			if (socket_manager_server.is_message_received()) {
 				Message received_message = socket_manager_server.get_received_message();
 
@@ -302,7 +302,6 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-
 /*
 message state:
 0 - exit
@@ -312,3 +311,4 @@ message state:
 4 - end
 5 - connection ok
 */
+
