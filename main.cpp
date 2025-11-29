@@ -25,12 +25,12 @@ mySqare sqare[8][8]; // creating fied [y][x]
 
 
 int main(int argc, char* argv[]) {
-	
+
 
 	// window ========================================================================================================================
 	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks", sf::Style::Titlebar | sf::Style::Close);
 	sf::Font font;
-	if (!font.openFromFile("text.ttf")){
+	if (!font.openFromFile("text.ttf")) {
 		std::cout << "ERROR: can't open font " << std::endl;
 		return 0;
 	}
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 	SocketManager socket_manager_client;
 
 	socket_manager_client.start(is_client ? port_1 : port_2, IP);
-	socket_manager_server.start(is_client ? port_2 : port_1); 
+	socket_manager_server.start(is_client ? port_2 : port_1);
 
 
 	// set color 
@@ -82,16 +82,16 @@ int main(int argc, char* argv[]) {
 	if (!is_client) {
 
 		MY_COLOR = rand() % 2;
-		Message message{.x_from = !MY_COLOR, .y_from = 0, .x_to = 0, .y_to = 0, .state = 5};
+		Message message{ .x_from = !MY_COLOR, .y_from = 0, .x_to = 0, .y_to = 0, .state = 5 };
 		socket_manager_client.send_message(message);  // send other color
 	}
-	
-	
+
+
 
 	//   Window loop  ================================================================================================================
-	while (window.isOpen()) { 
+	while (window.isOpen()) {
 
-		
+
 		if (is_load) {
 			if (socket_manager_server.is_message_received()) {
 
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 					is_load = false;
 				}
 				if (is_client) {
-					
+
 					MY_COLOR = received_message.x_from;
 
 					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 5 };
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 			Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 4 };
 			socket_manager_client.send_message(message);
 			error_message = "Win";
-			text.setPosition({500, 200});
+			text.setPosition({ 500, 200 });
 			is_end = true;
 			flag = true;
 		}
@@ -176,7 +176,8 @@ int main(int argc, char* argv[]) {
 
 
 				sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
-				if (sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 2) { // incorrect move
+				if (sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 2 ||
+					sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 3) { // incorrect move
 
 					is_error = true;
 					error_message = "Resive wrong move";
@@ -206,16 +207,16 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
-		
-		//   Events   ============================================================================================================================
-		while (const std::optional event = window.pollEvent()) {  
 
-			if (event->is<sf::Event::Closed>()) { 
+		//   Events   ============================================================================================================================
+		while (const std::optional event = window.pollEvent()) {
+
+			if (event->is<sf::Event::Closed>()) {
 				Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 0 };
 				socket_manager_client.send_message(message);  // send message about closing
 				window.close();
 			}
-			
+
 			// type ---------------------------------------------------------------------------------
 			if (const auto* mouseButton = event->getIf<sf::Event::MouseButtonPressed>()) {
 
@@ -231,7 +232,7 @@ int main(int argc, char* argv[]) {
 					int y = (click_y - FIELD_OFFSET_Y) / SQ_SIZE;
 
 					int tmp = sqare_type(x, y, sq, sqare);
-					
+
 					if (tmp == 0) { // single move
 
 						Message message{ .x_from = 7 - last_x, .y_from = 7 - last_y, .x_to = 7 - x, .y_to = 7 - y, .state = 1 };
@@ -249,7 +250,7 @@ int main(int argc, char* argv[]) {
 
 						last_x = x;
 						last_y = y;
-						
+
 					}
 					else { // selection
 
@@ -260,9 +261,9 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		
 
-		
+
+
 
 		//   Drawing   ===========================================================================================================================
 		window.clear();
@@ -272,12 +273,12 @@ int main(int argc, char* argv[]) {
 			window.draw(text);
 		}
 		else if (is_end) {
-			
+
 			text.setString(error_message);
 			window.draw(text);
 		}
 		else if (is_error) {
-			
+
 			text.setString(error_message);
 			window.draw(text);
 		}
@@ -295,7 +296,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		window.display();
-		
+
 	}
 
 	return 0;
@@ -310,5 +311,4 @@ message state:
 4 - end
 5 - connection ok
 */
-
 
