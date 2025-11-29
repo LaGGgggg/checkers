@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
 			if (socket_manager_server.is_message_received()) {
 
 				Message received_message = socket_manager_server.get_received_message();
-				std::cout << "[INFO] Received message: " << received_message.x_from << " " << received_message.y_from << " -> "
+				std::cout << "[INFO] Receive message: " << received_message.x_from << " " << received_message.y_from << " -> "
 					<< received_message.x_to << " " << received_message.y_to << ", " << "state: " << received_message.state << std::endl;
 
 
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
 					sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 3) { // incorrect move
 
 					is_error = true;
-					error_message = "Resive wrong move";
+					error_message = "Wrong move";
 					Message message{ .x_from = 0, .y_from = 0, .x_to = 0, .y_to = 0, .state = 3 };
 					socket_manager_client.send_message(message);
 
@@ -236,6 +236,7 @@ int main(int argc, char* argv[]) {
 					if (tmp == 0) { // single move
 
 						Message message{ .x_from = 7 - last_x, .y_from = 7 - last_y, .x_to = 7 - x, .y_to = 7 - y, .state = 1 };
+						//Message message{ .x_from = 1, .y_from = 1, .x_to = 6, .y_to = 6, .state = 1 };
 						socket_manager_client.send_message(message);
 						std::cout << "Sent message: " << last_x << " " << last_y << " -> " << x << ", " << y << ", state: 1" << std::endl;
 
