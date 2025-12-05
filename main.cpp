@@ -2,11 +2,11 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Event.hpp>
-#include <iostream>
 #include <SFML/Window.hpp>
 #include <optional>
 #include <SFML/Audio.hpp>
 #include <cstdlib>
+#include <fstream>
 
 
 #include "storage.h"
@@ -26,8 +26,59 @@ mySqare sqare[8][8]; // creating fied [y][x]
 extern unsigned char main_font_ttf[];
 extern unsigned int main_font_ttf_len;
 
+// Default settings:
+int PORT_1 = 9001;
+int PORT_2 = 8012;
+sf::IpAddress IP({ 127, 0, 0, 1 });
+
+
+void apply_settings_from_config_file() {
+
+  std::ifstream config_file("config.txt");
+
+  if (config_file.is_open()) {
+
+    std::string line;
+
+    while (std::getline(config_file, line)) {
+
+      std::istringstream iss(line);
+      std::string key;
+
+      if (std::getline(iss, key, '=')) {
+
+        std::string value;
+
+        if (std::getline(iss, value)) {
+          if (key == "ip") {
+
+            auto resolved = sf::IpAddress::resolve(value);
+
+            if (resolved) {
+              IP = *resolved;
+            }
+          } else if (key == "port_1") {
+            PORT_1 = std::stoi(value);
+          } else if (key == "port_2") {
+            PORT_2 = std::stoi(value);
+          }
+        }
+      }
+    }
+
+    config_file.close();
+  } else {
+    std::cout << "[WARNING] Could not open config.txt. Using default settings." << std::endl;
+  }
+
+  std::cout << "[INFO] Configuration - ip: " << IP.toString() << ", port 1: " << PORT_1 << ", port 2: " << PORT_2
+    << std::endl;
+}
+
 
 int main(int argc, char* argv[]) {
+
+  apply_settings_from_config_file();
 
 
 	// window ========================================================================================================================
@@ -76,8 +127,8 @@ int main(int argc, char* argv[]) {
 	SocketManager socket_manager_server;
 	SocketManager socket_manager_client;
 
-	socket_manager_client.start(is_client ? port_1 : port_2, IP);
-	socket_manager_server.start(is_client ? port_2 : port_1);
+	socket_manager_client.start(is_client ? PORT_1 : PORT_2, IP);
+	socket_manager_server.start(is_client ? PORT_2 : PORT_1);
 
 
 	// set color 

@@ -8,11 +8,6 @@
 #include <SFML/Network/Packet.hpp>
 
 
-const int port_1 = 8012;
-const int port_2 = 9001;
-const sf::IpAddress IP({ 127, 0, 0, 1 });
-
-
 struct Message {
 	int x_from;
 	int y_from;
