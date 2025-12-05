@@ -23,6 +23,9 @@ int last_x, last_y;
 std::string error_message = "error";
 mySqare sqare[8][8]; // creating fied [y][x]
 
+extern unsigned char main_font_ttf[];
+extern unsigned int main_font_ttf_len;
+
 
 int main(int argc, char* argv[]) {
 
@@ -30,7 +33,7 @@ int main(int argc, char* argv[]) {
 	// window ========================================================================================================================
 	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks", sf::Style::Titlebar | sf::Style::Close);
 	sf::Font font;
-	if (!font.openFromMemory(font_ttf, font_ttf_len)) {
+	if (!font.openFromMemory(main_font_ttf, main_font_ttf_len)) {
 		std::cout << "ERROR: can't open font " << std::endl;
 		return 0;
 	}
