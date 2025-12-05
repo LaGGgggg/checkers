@@ -15,6 +15,6 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main main.cpp storage.cpp socket_manager.cpp)
+add_executable(main main.cpp storage.cpp socket_manager.cpp font_data.cpp)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics SFML::Window SFML::Network)

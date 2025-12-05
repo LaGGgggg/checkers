@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 	// window ========================================================================================================================
 	sf::RenderWindow window(sf::VideoMode({ WINDOW_X, WINDOW_Y }), "Checks", sf::Style::Titlebar | sf::Style::Close);
 	sf::Font font;
-	if (!font.openFromFile("text.ttf")) {
+	if (!font.openFromMemory(font_ttf, font_ttf_len)) {
 		std::cout << "ERROR: can't open font " << std::endl;
 		return 0;
 	}
