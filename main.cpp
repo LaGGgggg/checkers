@@ -231,7 +231,8 @@ int main(int argc, char* argv[]) {
 
 
 				sqare_type(received_message.x_from, received_message.y_from, sq, sqare);
-				if (sqare_type(received_message.x_to, received_message.y_to, sq, sqare) == 2) { // incorrect move
+				int tmp = sqare_type(received_message.x_to, received_message.y_to, sq, sqare);
+				if (tmp == 2 || tmp == 3) { // incorrect move
 
 					is_error = true;
 					text.setPosition({ 250, 200 });
@@ -375,3 +376,4 @@ message state:
     return main(__argc, __argv);
   }
 #endif
+
