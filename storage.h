@@ -20,11 +20,11 @@ const float CHECKER_STORAGE_Y = 100.f;
 
 // Colors 
 const sf::Color back_color(120, 116, 81);
-const sf::Color outline(34, 29, 19); 
-const sf::Color black_sq(95, 61, 33);
-const sf::Color white_sq(179, 139, 89);
-const sf::Color white_cheker(255, 255, 255);
-const sf::Color black_checker(53, 46, 30);
+const sf::Color outline(25, 11, 10);
+const sf::Color black_sq(117, 68, 46);
+const sf::Color white_sq(196, 147, 106);
+const sf::Color white_cheker(215, 189, 151);
+const sf::Color black_checker(66, 36, 24);
 const sf::Color selected_sq(0, 150, 40);
 const sf::Color interface(54, 64, 37);
 
@@ -111,4 +111,5 @@ bool is_double_jump(int x, int y, mySqare sqare[][8]);
 
 void select(int x, int y, sf::RectangleShape* sq);
 void remove_selection(sf::RectangleShape* sq);
+
 
