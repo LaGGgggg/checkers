@@ -316,4 +316,11 @@ message state:
 5 - connection ok
 */
 
+// Required for Windows GUI applications:
+#ifdef _WIN32
+  #include <windows.h>
 
+  int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    return main(__argc, __argv);
+  }
+#endif

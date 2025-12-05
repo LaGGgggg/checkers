@@ -22,6 +22,10 @@
     ```bash
     cmake --build build
     ```
+    Для релизной сборки:
+    ```bash
+    cmake --build build --config Release
+    ```
 
 4. Запустите приложение:
     ```bash
